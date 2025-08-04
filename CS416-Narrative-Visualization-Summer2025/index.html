@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Obesity Narrative Visualization</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Obesity Rates in the U.S. (2023)</h1>
+
+    <!-- Intro narrative -->
+    <p class="summary">
+        Obesity is a major public health issue in the United States, affecting over one-third of adults as of 2023. 
+        While it impacts people across all demographics, its burden is not evenly distributed. 
+        Obesity rates vary significantly by age, sex, race/ethnicity, education, and region—reflecting deeper systemic disparities. 
+        This interactive visualization begins with an overview and invites you to explore these patterns through a series of focused scenes.
+    </p>
+
+    <!-- Buttons to switch scenes -->
+    <div id="buttons">
+      <button onclick="showScene('Overall')">Overall</button>
+      <button onclick="showScene('Sex')">Sex</button>
+      <button onclick="showScene('Age')">Age</button>
+      <button onclick="showScene('Race/Ethnicity')">Race/Ethnicity</button>
+      <button onclick="showScene('Education')">Education</button>
+      <button onclick="showScene('Region')">Region</button>
+      <button onclick="showScene('Summary')">Summary</button>
+    </div>
+
+    <!-- Chart container -->
+    <div id="chart"></div>
+
+    <!-- Annotation -->
+    <p id="annotation"></p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
