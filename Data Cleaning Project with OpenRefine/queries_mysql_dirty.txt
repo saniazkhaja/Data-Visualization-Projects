@@ -1,0 +1,148 @@
+CREATE TABLE MenuDirty (
+  id INT NOT NULL);
+
+CREATE TABLE MenuPageDirty (
+  id INT NOT NULL,
+  menu_id INT NOT NULL);
+
+CREATE TABLE MenuItemDirty (
+  id INT NOT NULL,
+  menu_page_id INT,
+  dish_id INT);
+
+CREATE TABLE DishDirty (
+  id INT NOT NULL);
+
+LOAD DATA INFILE '/var/lib/mysql-files/menu_dirty.csv'
+  INTO TABLE MenuDirty
+  FIELDS TERMINATED BY ','
+  ENCLOSED BY '"'
+  LINES TERMINATED BY '\n'
+  IGNORE 1 LINES; 
+
+LOAD DATA INFILE '/var/lib/mysql-files/menupage_dirty.csv'
+  INTO TABLE MenuPageDirty
+  FIELDS TERMINATED BY ','
+  ENCLOSED BY '"'
+  LINES TERMINATED BY '\n'
+  IGNORE 1 LINES;
+  
+LOAD DATA INFILE '/var/lib/mysql-files/menuitem_dirty.csv'
+  INTO TABLE MenuItemDirty
+  FIELDS TERMINATED BY ','
+  ENCLOSED BY '"'
+  LINES TERMINATED BY '\n'
+  IGNORE 1 LINES;
+
+LOAD DATA INFILE '/var/lib/mysql-files/dish_dirty.csv'
+  INTO TABLE DishDirty
+  FIELDS TERMINATED BY ','
+  ENCLOSED BY '"'
+  LINES TERMINATED BY '\n'
+  IGNORE 1 LINES;
+
+-- Find non-unique ID values
+
+SELECT id,COUNT(*)
+FROM MenuDirty
+GROUP BY id
+HAVING COUNT(*) > 1;
+
+SELECT id,COUNT(*)
+FROM MenuPageDirty
+GROUP BY id
+HAVING COUNT(*) > 1;
+
+SELECT id,COUNT(*)
+FROM MenuItemDirty
+GROUP BY id
+HAVING COUNT(*) > 1;
+
+SELECT id,COUNT(*)
+FROM DishDirty
+GROUP BY id
+HAVING COUNT(*) > 1;
+
+-- Result: No duplicate IDs in any table
+
+
+-- Find FK violations 
+-- MenuPage.menu_id not in Menu.id
+SELECT COUNT(*)
+FROM MenuPageDirty
+WHERE menu_id NOT IN (
+    SELECT id
+    FROM MenuDirty
+);
+-- Result:
+-- +----------+
+-- | COUNT(*) |
+-- +----------+
+-- |     5803 |
+-- +----------+
+
+-- MenuItem.menu_page_id not in MenuPage.id
+SELECT COUNT(*)
+FROM MenuItemDirty
+WHERE menu_page_id NOT IN (
+    SELECT id
+    FROM MenuPageDirty
+);
+-- Result: No FK violation
+
+-- MenuItem.menu_page_id not in MenuPage.id
+SELECT COUNT(*)
+FROM MenuItemDirty
+WHERE menu_page_id NOT IN (
+    SELECT id
+    FROM MenuPageDirty
+    WHERE menu_id IN (
+      SELECT id
+      FROM MenuDirty
+    )
+);
+-- Result:
+-- +----------+
+-- | COUNT(*) |
+-- +----------+
+-- |     5373 |
+-- +----------+
+
+-- MenuItem.dish_id not in Dish.id
+SELECT COUNT(*)
+FROM MenuItemDirty
+WHERE dish_id NOT IN (
+    SELECT id
+    FROM DishDirty
+);
+-- Result:
+-- +----------+
+-- | COUNT(*) |
+-- +----------+
+-- |      244 |
+-- +----------+
+
+-- Create baseline clustering metric
+SELECT COUNT(DISTINCT name)
+FROM Dish
+-- +----------------------+
+-- | COUNT(DISTINCT name) |
+-- +----------------------+
+-- |               378754 |
+-- +----------------------+
+
+-- Create baseline clustering metric
+SELECT COUNT(DISTINCT name)
+FROM Dish
+WHERE LOWER(name) LIKE ‘%coffee%’
+-- +----------------------+
+-- | COUNT(DISTINCT name) |
+-- +----------------------+
+-- |                 4079 |
+-- +----------------------+
+
+
+
+
+
+

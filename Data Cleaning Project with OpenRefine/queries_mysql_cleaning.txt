@@ -1,0 +1,165 @@
+CREATE TABLE Menu (
+  id INT NOT NULL,
+  name VARCHAR(255),
+  sponsor VARCHAR(2047),
+  event VARCHAR(255),
+  venue VARCHAR(255),
+  place VARCHAR(255),
+  occasion VARCHAR(255),
+  notes VARCHAR(2047),
+  call_number VARCHAR(255),
+  date VARCHAR(255),
+  location VARCHAR(255),
+  currency VARCHAR(255),
+  currency_symbol VARCHAR(255));
+
+CREATE TABLE MenuPage (
+  id INT NOT NULL,
+  menu_id INT NOT NULL,
+  page_number INT,
+  image_id VARCHAR(255),
+  full_height INT,
+  full_width INT,
+  uuid VARCHAR(255));
+
+CREATE TABLE MenuItem(
+  id INT NOT NULL,
+  menu_page_id INT,
+  price FLOAT,
+  high_price FLOAT,
+  dish_id INT,
+  created_at VARCHAR(255),
+  updated_at VARCHAR(255),
+  xpos FLOAT,
+  ypos FLOAT);
+
+CREATE TABLE Dish (
+  id INT NOT NULL,
+  name VARCHAR(2047));
+
+LOAD DATA INFILE '/var/lib/mysql-files/nypl_menus_menu.csv' IGNORE
+  INTO TABLE Menu
+  FIELDS TERMINATED BY ','
+  ENCLOSED BY '"'
+  LINES TERMINATED BY '\n'
+  IGNORE 1 LINES;
+
+LOAD DATA INFILE '/var/lib/mysql-files/nypl_menus_menupage.csv'
+  INTO TABLE MenuPage
+  FIELDS TERMINATED BY ','
+  ENCLOSED BY '"'
+  LINES TERMINATED BY '\n'
+  IGNORE 1 LINES;
+  
+LOAD DATA INFILE '/var/lib/mysql-files/nypl_menus_menuitem.csv'
+  INTO TABLE MenuItem
+  FIELDS TERMINATED BY ','
+  ENCLOSED BY '"'
+  LINES TERMINATED BY '\n'
+  IGNORE 1 LINES;
+
+LOAD DATA INFILE '/var/lib/mysql-files/nypl_menus_dish.csv'
+  INTO TABLE Dish
+  FIELDS TERMINATED BY ','
+  ENCLOSED BY '"'
+  LINES TERMINATED BY '\n'
+  IGNORE 1 LINES;
+
+-- Delete FK violations (MenuPage.menu_id not in Menu.id)
+DELETE FROM MenuPage
+WHERE menu_id NOT IN (
+    SELECT id
+    FROM Menu
+);
+-- Query OK, 10051 rows affected (0.11 sec)
+
+-- Delete FK violations (MenuItem.menu_page_id not in MenuPage.id)
+DELETE FROM MenuItem
+WHERE menu_page_id NOT IN (
+    SELECT id
+    FROM MenuPage
+);
+-- Query OK, 67563 rows affected (0.60 sec)
+
+-- Delete FK violations (MenuItem.dish_id not in Dish.id)
+DELETE FROM MenuItem
+WHERE dish_id NOT IN (
+    SELECT id
+    FROM Dish
+);
+-- Query OK, 67 rows affected (1.31 sec)
+
+-- Verify cleaning was successful in removing IC violations
+
+-- Confirm no FK violations 
+-- MenuPage.menu_id not in Menu.id
+SELECT *
+FROM MenuPage
+WHERE menu_id NOT IN (
+    SELECT id
+    FROM Menu
+);
+-- Empty set (0.03 sec)
+
+-- MenuItem.menu_page_id not in MenuPage.id
+SELECT *
+FROM MenuItem
+WHERE menu_page_id NOT IN (
+    SELECT id
+    FROM MenuPage
+);
+-- Empty set (0.34 sec)
+
+-- MenuItem.dish_id not in Dish.id
+SELECT *
+FROM MenuItem
+WHERE dish_id NOT IN (
+    SELECT id
+    FROM Dish
+);
+-- Empty set (1.16 sec)
+
+-- Compare name clustering to baseline
+SELECT COUNT(DISTINCT name)
+FROM Dish
+-- +----------------------+
+-- | COUNT(DISTINCT name) |
+-- +----------------------+
+-- |               346979 |
+-- +----------------------+
+
+-- Compare name clustering to baseline
+SELECT COUNT(DISTINCT name)
+FROM Dish
+WHERE LOWER(name) LIKE ‘%coffee%’
+-- +----------------------+
+-- | COUNT(DISTINCT name) |
+-- +----------------------+
+-- |                 3760 |
+-- +----------------------+
+
+
+-- Export modified table(s) to CSV
+SELECT *
+FROM MenuPage
+INTO OUTFILE '/var/lib/mysql-files/nypl_menus_menupage_sql.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+
+SELECT *
+FROM MenuItem
+INTO OUTFILE '/var/lib/mysql-files/nypl_menus_menuitem_sql.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+
+SELECT MenuItem.id AS id, Dish.name AS dish_name, MenuItem.price AS dish_price, Menu.currency AS currency, Menu.date AS date
+FROM Menu,MenuPage,MenuItem,Dish
+WHERE MenuItem.dish_id = Dish.id AND
+MenuItem.menu_page_id = MenuPage.id AND
+MenuPage.menu_id = Menu.id
+INTO OUTFILE '/var/lib/mysql-files/nypl_menus_dishprice_sql.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';

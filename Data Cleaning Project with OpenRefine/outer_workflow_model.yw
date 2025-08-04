@@ -1,0 +1,240 @@
+# @begin cs513_team136_project_workflow @desc Cleaning the NYPL "What's on the Menu?" Dataset for the purpose of tracking cost of dishes over time
+# @in raw_menu_csv @uri file://1-nypl-menus-original/menu.csv
+# @in raw_menupage_csv @uri file://1-nypl-menus-original/menupage.csv
+# @in raw_menuitem_csv @uri file://1-nypl-menus-original/menuitem.csv
+# @in raw_dish_csv @uri file://1-nypl-menus-original/dish.csv
+# @out clean_menu_csv @uri file://5-nypl-menus-final/menu.csv
+# @out clean_menupage_csv @uri file://5-nypl-menus-final/menupage.csv
+# @out clean_menuitem_csv @uri file://5-nypl-menus-final/menuitem.csv
+# @out clean_dish_csv @uri file://5-nypl-menus-final/dish.csv
+# @out clean_dish_price_csv @uri file://5-nypl-menus-final/dish_prices.csv
+
+import pandas as pd
+import sqlite3
+
+#  @begin openrefine @desc Semantic and syntactic error removal
+#  @in raw_menu_csv @uri file://1-nypl-menus-original/menu.csv
+#  @in raw_menupage_csv @uri file://1-nypl-menus-original/menupage.csv
+#  @in raw_menuitem_csv @uri file://1-nypl-menus-original/menuitem.csv
+#  @in raw_dish_csv @uri file://1-nypl-menus-original/dish.csv
+#  @out clean_menu_csv @uri file://5-nypl-menus-final/menu.csv
+#  @out or_menupage_csv @uri file://2-nypl-menus-openrefine/menupage.csv
+#  @out or_menuitem_csv @uri file://2-nypl-menus-openrefine/menuitem.csv
+#  @out clean_dish_csv @uri file://5-nypl-menus-final/dish.csv
+
+#   @begin clean_menu_with_openrefine  @desc Use OpenRefine to Clean menu.csv
+#   @param menu_history_openrefine
+#   @out or_menu_csv @uri file://2-nypl-menus-openrefine/menu.csv
+
+#clean_openrefine(menu)
+
+#   @end clean_menu_with_openrefine
+
+#   @begin clean_menupage_with_openrefine  @desc Use OpenRefine to Clean menupage.csv
+#   @param menupage_history_openrefine
+#   @out or_menupage_csv @uri file://2-nypl-menus-openrefine/menupage.csv
+
+#clean_openrefine(menupage)
+
+#   @end clean_menupage_with_openrefine
+
+#   @begin clean_menuitem_with_openrefine  @desc Use OpenRefine to Clean menuitem.csv
+#   @param menuitem_history_openrefine
+#   @out or_menuitem_csv @uri file://2-nypl-menus-openrefine/menuitem.csv
+
+#clean_openrefine(menuitem)
+
+#   @end clean_menuitem_with_openrefine
+
+#   @begin clean_dish_with_openrefine  @desc Use OpenRefine to Clean dish.csv
+#   @param dish_history_openrefine
+#   @out or_dish_csv @uri file://2-nypl-menus-openrefine/dish.csv
+
+#clean_openrefine(dish)
+
+#   @end clean_dish_with_openrefine
+
+#  @end OpenRefine
+
+
+
+#  @begin pandas @desc Removing outliers and filling missing data
+#  @in or_menuitem_csv @uri file://2-nypl-menus-openrefine/menuitem.csv
+#  @out pd_menuitem_csv @uri file://3-nypl-menus-pandas/menuitem.csv
+
+#   @begin clean_menu_with_pandas  @desc Use Pandas to Clean menu.csv
+#   @out pd_menu_csv @uri file://3-nypl-menus-pandas/menu.csv
+
+# TODO: menu pandas script
+
+#   @end clean_menupage_with_pandas
+
+#   @begin clean_menupage_with_pandas  @desc Use Pandas to Clean menupage.csv
+#   @out pd_menu_csv @uri file://3-nypl-menus-pandas/menupage.csv
+
+# TODO: menupage pandas script
+
+#   @end clean_menupage_with_pandas
+
+#   @begin clean_menuitem_with_pandas  @desc Use Pandas to Clean menuitem.csv
+#   @out pd_menuitem_csv @uri file://3-nypl-menus-pandas/menuitem.csv
+
+def clean_menuitem_with_pandas():
+    df = pd.read_csv('file:2-nypl-menus-openrefine/menuitem.csv',
+                     dtype = {'id': int, 
+                              'menu_page_id': int,
+                              'price': float, 
+                              'high_price' : float, 
+                              'dish_id' : int, 
+                              'created_at' : str, 
+                              'updated_at' : str, 
+                              'xpos' : float, 
+                              'ypos' : float },
+                     parse_dates=['created_at','updated_at'])
+                     
+    df = df.drop(df[(df['price'] == 0) & (df['high_price'] == 0)].index)
+    
+    df.loc[(df['price'] == 0) & (df['high_price'] > 0), 'price'] = df['high_price']
+    
+    df.loc[(df['price'] > df['high_price']), 'high_price'] = df['price']
+    
+    df.to_csv('3-nypl-menus-pandas/menuitem.csv',
+              index=False, date_format='%Y-%m-%d %H:%M:%S')
+
+#   @end clean_menu_with_pandas
+
+#  @end pandas
+
+#  @begin sql @desc Removing IC violations and consolidating relevant data
+#  @in clean_menu_csv @uri file://5-nypl-menus-final/menu.csv
+#  @in or_menupage_csv @uri file://2-nypl-menus-openrefine/menupage.csv
+#  @in pd_menuitem_csv @uri file://3-nypl-menus-pandas/menuitem.csv
+#  @in clean_dish_csv @uri file://5-nypl-menus-final/dish.csv
+#  @out clean_menupage_csv @uri file://5-nypl-menus-final/menupage.csv
+#  @out clean_menuitem_csv @uri file://5-nypl-menus-final/menuitem.csv
+#  @out clean_dish_price_csv @uri file://5-nypl-menus-final/dish_prices.csv
+
+def clean_with_sql():
+    
+    # Set up connection to MySQL
+    conn = sqlite3.connect(":memory:")
+    db_cursor = conn.cursor()
+    
+    # create and load tables
+    menu = pd.read_csv("menu.csv")
+    menu_page = pd.read_csv("menupage.csv")
+    menu_item = pd.read_csv("menuitem.csv")
+    dish = pd.read_csv("dish.csv")
+    
+    menu.to_sql("Menu", conn, index=False)
+    menu_page.to_sql("MenuPage", conn, index=False)
+    menu_item.to_sql("MenuItem", conn, index=False)
+    dish.to_sql("Dish", conn, index=False)
+    
+    # Remove IC violations
+    db_cursor.execute("""
+        DELETE FROM Menu
+        WHERE id IN (
+            SELECT id
+            FROM MenuPage
+            GROUP BY id
+            HAVING COUNT(*) > 1
+        )
+    """)
+    db_cursor.execute("""
+        DELETE FROM MenuPage
+        WHERE id IN (
+            SELECT id
+            FROM MenuPage
+            GROUP BY id
+            HAVING COUNT(*) > 1
+        )
+    """)
+    db_cursor.execute("""
+        DELETE FROM MenuItem
+        WHERE id IN (
+            SELECT id
+            FROM MenuIem
+            GROUP BY id
+            HAVING COUNT(*) > 1
+        )
+    """)
+    db_cursor.execute("""
+        DELETE FROM Dish
+        WHERE id IN (
+            SELECT id
+            FROM Dish
+            GROUP BY id
+            HAVING COUNT(*) > 1
+        )
+    """)
+    
+    db_cursor.execute("""
+        DELETE FROM MenuPage
+        WHERE menu_id NOT IN (
+            SELECT id
+            FROM Menu
+        )
+    """)
+    db_cursor.execute("""
+        DELETE FROM MenuItem
+        WHERE menu_page_id NOT IN (
+            SELECT id
+            FROM MenuPage
+        )
+    """)
+    db_cursor.execute("""
+        DELETE FROM MenuItem
+        WHERE dish_id NOT IN (
+            SELECT id
+            FROM Dish
+        )
+    """)
+    
+    # Export clean data to CSVs
+    df = pd.read_sql_query("""
+        SELECT * FROM Menu
+    """, conn)
+    df.to_csv('5-nypl-menus-final/menu.csv', index=False)
+    
+    df = pd.read_sql_query("""
+        SELECT * FROM MenuPage
+    """, conn)
+    df.to_csv('5-nypl-menus-final/menupage.csv', index=False)
+    
+    df = pd.read_sql_query("""
+        SELECT * FROM MenuItem
+    """, conn)
+    df.to_csv('5-nypl-menus-final/menuitem.csv', index=False)
+    
+    df = pd.read_sql_query("""
+        SELECT * FROM dish
+    """, conn)
+    df.to_csv('5-nypl-menus-final/dish.csv', index=False)
+    
+    # Consolidate data to single CSV
+    df = pd.read_sql_query("""
+        SELECT MenuItem.id AS id, Dish.name AS dish_name, MenuItem.price AS dish_price, Menu.currency AS currency, Menu.date AS date
+        FROM Menu,MenuPage,MenuItem,Dish
+        WHERE MenuItem.dish_id = Dish.id AND
+        MenuItem.menu_page_id = MenuPage.id AND
+        MenuPage.menu_id = Menu.id
+    """, conn)
+
+#  @end sql
+
+# @end CS513_Team136_ProjectWorkflow
+
+if __name__ == "__main__":
+    
+    clean_openrefine('menu')
+    clean_openrefine('menupage')
+    clean_openrefine('menuitem')
+    clean_openrefine('dish')
+    
+    clean_menupage_with_pandas()
+    
+    clean_with_sql()
+    
+    
+    

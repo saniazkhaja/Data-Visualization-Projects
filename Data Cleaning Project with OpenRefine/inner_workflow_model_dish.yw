@@ -1,0 +1,244 @@
+#@begin Linear_OR #@desc Linear OpenRefine Workflow
+#@param expression:value.toString()
+#@param col-name:menus_appeared
+#@param col-name:id
+#@param col-name:first_appeared
+#@param expression:value.toNumber()
+#@param expression:value.replace(/Omelette/i,"Omelet")
+#@param col-name:highest_price
+#@param col-name:last_appeared
+#@param col-name:description
+#@param col-name:lowest_price
+#@param expression:value.replace(/[^a-zA-Z\\s]/,"_")
+#@param expression:value.trim()
+#@param expression:value.toTitlecase()
+#@param expression:"isBlank(value)"
+#@param col-name:times_appeared
+#@param expression:value.replace(/[\\p{Zs}\\s]+/,'_')
+#@param col-name:name
+#@in table0
+#@out table43
+#@begin core/column-removal0#@desc Remove column description
+#@param col-name:description
+#@in table0
+#@out table1
+#@end core/column-removal0
+#@begin core/column-removal1#@desc Remove column menus_appeared
+#@param col-name:menus_appeared
+#@in table1
+#@out table2
+#@end core/column-removal1
+#@begin core/column-removal2#@desc Remove column times_appeared
+#@param col-name:times_appeared
+#@in table2
+#@out table3
+#@end core/column-removal2
+#@begin core/column-removal3#@desc Remove column first_appeared
+#@param col-name:first_appeared
+#@in table3
+#@out table4
+#@end core/column-removal3
+#@begin core/column-removal4#@desc Remove column last_appeared
+#@param col-name:last_appeared
+#@in table4
+#@out table5
+#@end core/column-removal4
+#@begin core/column-removal5#@desc Remove column lowest_price
+#@param col-name:lowest_price
+#@in table5
+#@out table6
+#@end core/column-removal5
+#@begin core/column-removal6#@desc Remove column highest_price
+#@param col-name:highest_price
+#@in table6
+#@out table7
+#@end core/column-removal6
+#@begin core/text-transform0#@desc Text transform on cells in column id using expression value.toNumber()
+#@param col-name:id
+#@param expression:value.toNumber()
+#@in table7
+#@out table8
+#@end core/text-transform0
+#@begin core/text-transform1#@desc Text transform on cells in column name using expression value.toString()
+#@param col-name:name
+#@param expression:value.toString()
+#@in table8
+#@out table9
+#@end core/text-transform1
+#@begin core/text-transform2#@desc Text transform on cells in column name using expression value.replace(/[^a-zA-Z\\s]/,\" \")
+#@param col-name:name
+#@param expression:value.replace(/[^a-zA-Z\\s]/,"_")
+#@in table9
+#@out table10
+#@end core/text-transform2
+#@begin core/text-transform3#@desc Text transform on cells in column name using expression value.trim()
+#@param col-name:name
+#@param expression:value.trim()
+#@in table10
+#@out table11
+#@end core/text-transform3
+#@begin core/text-transform4#@desc Text transform on cells in column name using expression value.replace(/[\\p{Zs}\\s]+/,' ')
+#@param col-name:name
+#@param expression:value.replace(/[\\p{Zs}\\s]+/,'_')
+#@in table11
+#@out table12
+#@end core/text-transform4
+#@begin core/text-transform5#@desc Text transform on cells in column name using expression value.toTitlecase()
+#@param col-name:name
+#@param expression:value.toTitlecase()
+#@in table12
+#@out table13
+#@end core/text-transform5
+#@begin core/row-removal0#@desc Remove rows
+#@param col-name:name
+#@param expression:"isBlank(value)"
+#@in table13
+#@out table14
+#@end core/row-removal0
+#@begin core/mass-edit0#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table14
+#@out table15
+#@end core/mass-edit0
+#@begin core/mass-edit1#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table15
+#@out table16
+#@end core/mass-edit1
+#@begin core/mass-edit2#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table16
+#@out table17
+#@end core/mass-edit2
+#@begin core/mass-edit3#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table17
+#@out table18
+#@end core/mass-edit3
+#@begin core/mass-edit4#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table18
+#@out table19
+#@end core/mass-edit4
+#@begin core/mass-edit5#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table19
+#@out table20
+#@end core/mass-edit5
+#@begin core/mass-edit6#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table20
+#@out table21
+#@end core/mass-edit6
+#@begin core/mass-edit7#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table21
+#@out table22
+#@end core/mass-edit7
+#@begin core/mass-edit8#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table22
+#@out table23
+#@end core/mass-edit8
+#@begin core/mass-edit9#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table23
+#@out table24
+#@end core/mass-edit9
+#@begin core/mass-edit10#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table24
+#@out table25
+#@end core/mass-edit10
+#@begin core/mass-edit11#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table25
+#@out table26
+#@end core/mass-edit11
+#@begin core/mass-edit12#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table26
+#@out table27
+#@end core/mass-edit12
+#@begin core/mass-edit13#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table27
+#@out table28
+#@end core/mass-edit13
+#@begin core/mass-edit14#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table28
+#@out table29
+#@end core/mass-edit14
+#@begin core/mass-edit15#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table29
+#@out table30
+#@end core/mass-edit15
+#@begin core/mass-edit16#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table30
+#@out table31
+#@end core/mass-edit16
+#@begin core/text-transform6#@desc Text transform on cells in column name using expression value.replace(/Omelette/i,\"Omelet\")
+#@param col-name:name
+#@param expression:value.replace(/Omelette/i,"Omelet")
+#@in table31
+#@out table32
+#@end core/text-transform6
+#@begin core/mass-edit17#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table32
+#@out table33
+#@end core/mass-edit17
+#@begin core/mass-edit18#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table33
+#@out table34
+#@end core/mass-edit18
+#@begin core/mass-edit19#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table34
+#@out table35
+#@end core/mass-edit19
+#@begin core/mass-edit20#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table35
+#@out table36
+#@end core/mass-edit20
+#@begin core/mass-edit21#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table36
+#@out table37
+#@end core/mass-edit21
+#@begin core/mass-edit22#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table37
+#@out table38
+#@end core/mass-edit22
+#@begin core/mass-edit23#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table38
+#@out table39
+#@end core/mass-edit23
+#@begin core/mass-edit24#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table39
+#@out table40
+#@end core/mass-edit24
+#@begin core/mass-edit25#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table40
+#@out table41
+#@end core/mass-edit25
+#@begin core/mass-edit26#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table41
+#@out table42
+#@end core/mass-edit26
+#@begin core/mass-edit27#@desc Mass edit cells in column name
+#@param col-name:name
+#@in table42
+#@out table43
+#@end core/mass-edit27
+#@end Linear_OR
