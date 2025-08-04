@@ -6,8 +6,8 @@ FBI Crime Dashboard Tableau: https://public.tableau.com/app/profile/sania.khaja/
 
 Narrative Visualization Essay: Obesity in America
 
-Link: Obesity Narrative Visualization
-Data Source: Adult Obesity Prevalence Maps | Obesity | CDC
+Link: [Obesity Narrative Visualization](https://saniakhaja.github.io/CS416-Narrative-Visualization-Summer2025/)
+Data Source: https://www.cdc.gov/obesity/data-and-statistics/adult-obesity-prevalence-maps.html
 
 
 Messaging
